@@ -1,14 +1,6 @@
 package io.netty.example.netty3;
 
-import org.jboss.netty.bootstrap.Bootstrap;
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.buffer.HeapChannelBufferFactory;
 import org.jboss.netty.channel.*;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-
-import java.net.InetSocketAddress;
-import java.nio.ByteOrder;
-import java.util.concurrent.Executors;
 
 
 public class ClientHandler extends SimpleChannelUpstreamHandler {
