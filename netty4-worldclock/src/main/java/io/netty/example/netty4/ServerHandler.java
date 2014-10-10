@@ -18,14 +18,15 @@ package io.netty.example.netty4;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.example.common.Counter;
+import io.netty.example.common.KPIReporter;
 
 @ChannelHandler.Sharable
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
+	
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object message) throws Exception {
-    	Counter.add();
+    	KPIReporter.tpsCounter.add();
     }
 
     @Override

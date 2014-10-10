@@ -1,6 +1,7 @@
 package io.netty.example.netty3;
 
-import io.netty.example.common.Counter;
+import io.netty.example.common.KPIReporter;
+
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
@@ -20,7 +21,7 @@ public class ServerHandler extends SimpleChannelHandler {
 
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-		Counter.add();
+		KPIReporter.tpsCounter.add();
 	}
 
 }

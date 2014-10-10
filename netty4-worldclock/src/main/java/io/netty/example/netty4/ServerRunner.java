@@ -15,7 +15,7 @@
  */
 package io.netty.example.netty4;
 
-import io.netty.example.common.Counter;
+import io.netty.example.common.KPIReporter;
 
 public final class ServerRunner {
 
@@ -24,7 +24,7 @@ public final class ServerRunner {
     public static void main(String[] args) throws Exception {
 		System.setProperty("io.netty.leakDetectionLevel","disabled");
 
-		Counter.start();
+		KPIReporter.start();
 		ServerFactory server = new ServerFactory();
 		server.bind(PORT);
     }
