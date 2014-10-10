@@ -16,19 +16,28 @@
 package io.netty.example.netty4;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 
 public final class Netty4ClientRunner {
 
 	static final String HOST = "127.0.0.1";
-	static final int PORT = 8463;
+	static final int PORT = 8787;
 
 	public static void main(String[] args) throws Exception {
 		ClientFactory client = new ClientFactory();
 		Channel channel = client.connect(HOST, PORT);
 
+		BetterWrite write = new BetterWrite(channel);
 		while (true) {
 			for (int j = 0; j < 10; j++) {
-				channel.writeAndFlush("hello world\n");
+				write.write(channel,"hello world\n",new ChannelFutureListener() {
+					@Override
+					public void operationComplete(ChannelFuture future) throws Exception {
+						// TODO Auto-generated method stub
+						
+					}
+				});
 			}
 			Thread.sleep(1);
 		}

@@ -19,7 +19,7 @@ import io.netty.example.common.Counter;
 
 public final class Netty4ServerRunner {
 
-    static final int PORT = Integer.parseInt(System.getProperty("port", "8463"));
+    static final int PORT = Integer.parseInt(System.getProperty("port", "8787"));
 
     public static void main(String[] args) throws Exception {
 		System.setProperty("io.netty.leakDetectionLevel","disabled");
