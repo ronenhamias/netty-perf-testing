@@ -1,4 +1,4 @@
-package io.netty.example.netty4;
+package io.netty.example.netty4.writter;
 
 
 import io.netty.channel.Channel;
