@@ -25,8 +25,8 @@ public class KPIReporter {
 					cpuCounter.add();
 					tpsCounter.add();
 					
-					Double CPU = cpuCounter.getMovingAvg();
-					Double TPS = tpsCounter.getMovingAvg();
+					Integer CPU = cpuCounter.getMovingAvg().intValue();
+					Integer TPS = tpsCounter.getMovingAvg().intValue();
 					
 					System.out.println("TPS:" + TPS  + "|CPU:" + CPU );
 					LOGGER.info(TPS.toString() + "," + CPU + ",");

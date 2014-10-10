@@ -33,6 +33,7 @@ public class ServerFactory {
     }
 	
 	public void bind(int port) {
+		initGroups();
 		final ServerBootstrap bootstrap = new ServerBootstrap();
 
 		bootstrap.group( bossGroup,workerGroup)
