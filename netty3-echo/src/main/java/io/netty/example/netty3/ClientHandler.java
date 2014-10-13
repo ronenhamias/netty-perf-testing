@@ -41,6 +41,7 @@ public class ClientHandler extends SimpleChannelUpstreamHandler {
 		}
 		else if(message.contains("pt.openapi.hello/sayHelloResponse/1.0")){
 			Netty3ClientRunner.send(ctx.getChannel());
+			Netty3ClientRunner.send(ctx.getChannel());
 		}
 			
 	}
