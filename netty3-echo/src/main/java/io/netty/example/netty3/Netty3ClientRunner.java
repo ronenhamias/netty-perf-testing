@@ -1,22 +1,39 @@
 package io.netty.example.netty3;
 
+import java.util.concurrent.TimeUnit;
+
 import org.jboss.netty.channel.Channel;
 
 public class Netty3ClientRunner {
 
 	private static final String HOST = "127.0.0.1";
-	private static final int PORT = 8787;
+	private static final int PORT = 4800;
 
+	static String createContextRequest = "{\"qualifier\":\"pt.openapi.context/createContextRequest\",\"data\":{\"properties\":null}}";
+
+	static String helloRequestTemplate = "{\"qualifier\":\"pt.openapi.hello/sayHello\",\"contextId\":\"[%CONTEXT_ID%]\",\"data\":{\"name\":\"ronen\"}}";
+
+	public static ValueLatch<String> latch = new ValueLatch<>();
+	private static String helloRequest = null;
+	
 	public static void main(String[] args) throws InterruptedException {
 		ClientFactory client = new ClientFactory();
 		Channel channel = client.connect(HOST, PORT);
 
-		while (true) {
-			for (int j = 0; j < 10; j++) {
-				channel.write("hello world\n");
-			}
-			Thread.sleep(1);
-		}
-	}
+		channel.write(createContextRequest);
 
+		String contextId = latch.getValue(10,TimeUnit.SECONDS);
+		if(contextId==null)
+			return;
+		
+	    helloRequest = helloRequestTemplate.replace("[%CONTEXT_ID%]", contextId);
+		
+	    channel.write(helloRequest);
+		
+		Thread.sleep(Integer.MAX_VALUE);
+	}
+	public static void send(Channel channel) {
+		channel.write(helloRequest);
+	}
+	
 }

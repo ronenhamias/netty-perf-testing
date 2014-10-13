@@ -31,11 +31,11 @@ public final class Netty4ClientRunner {
 
 		BetterWrite write = new BetterWrite(channel);
 		while (true) {
-			for (int j = 0; j < 10; j++) {
+			for (int j = 0; j < 100; j++) {
 				write.write(channel,"hello world\n",new ChannelFutureListener() {
 					@Override
 					public void operationComplete(ChannelFuture future) throws Exception {
-						// TODO Auto-generated method stub
+						
 						
 					}
 				});

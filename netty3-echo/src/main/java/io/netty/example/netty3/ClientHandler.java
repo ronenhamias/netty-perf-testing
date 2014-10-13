@@ -31,6 +31,19 @@ public class ClientHandler extends SimpleChannelUpstreamHandler {
 
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
+
+		String message =  (String) e.getMessage();
+		message = message.substring(4);
+		
+		if(message.contains("pt.openapi.context/createContextResponse")){
+			String contextId = message.subSequence(77, 97).toString();
+			Netty3ClientRunner.latch.setValue(contextId);
+		}
+		else if(message.contains("pt.openapi.hello/sayHelloResponse/1.0")){
+			Netty3ClientRunner.send(ctx.getChannel());
+		}
+			
 	}
+
 }
 
