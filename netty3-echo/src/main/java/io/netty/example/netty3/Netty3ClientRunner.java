@@ -9,7 +9,7 @@ public class Netty3ClientRunner {
 	private static final String HOST = "127.0.0.1";
 	private static final int PORT = 4800;
 
-	static String createContextRequest = "{\"qualifier\":\"pt.openapi.context/createContextRequest\",\"data\":{\"properties\":null}}";
+	static String createContextRequest = "{\"qualifier\":\"pt.openapi.context/createContextRequest\"}";
 
 	static String helloRequestTemplate = "{\"qualifier\":\"pt.openapi.hello/sayHello\",\"contextId\":\"[%CONTEXT_ID%]\",\"data\":{\"name\":\"ronen\"}}";
 
