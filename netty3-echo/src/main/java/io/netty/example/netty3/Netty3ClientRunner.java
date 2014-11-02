@@ -6,7 +6,7 @@ import org.jboss.netty.channel.Channel;
 
 public class Netty3ClientRunner {
 
-	private static final String HOST = "127.0.0.1";
+	private static String HOST = "127.0.0.1";
 	private static final int PORT = 4800;
 
 	static String createContextRequest = "{\"qualifier\":\"pt.openapi.context/createContextRequest\"}";
@@ -15,19 +15,31 @@ public class Netty3ClientRunner {
 
 	public static ValueLatch<String> latch = new ValueLatch<>();
 	private static String helloRequest = null;
+	public static String FACTOR = "2";
 	
 	public static void main(String[] args) throws InterruptedException {
-		ClientFactory client = new ClientFactory();
-		Channel channel = client.connect(HOST, PORT);
 
+		System.out.println("starting perf test");
+		
+		if(args[0]!=null)
+			HOST = args[0];
+		if(args[0]!=null)
+			FACTOR  = args[1];
+		
+		System.out.println("connecting to: " + HOST);
+		
+		ClientFactory client = new ClientFactory();
+		Channel channel = client.connect(args[0], PORT);
+		System.out.println("create session: " + HOST + " open:" + channel.isOpen());
 		channel.write(createContextRequest);
 
 		String contextId = latch.getValue(10,TimeUnit.SECONDS);
 		if(contextId==null)
 			return;
-		
+		System.out.println("session created: " + contextId);
 	    helloRequest = helloRequestTemplate.replace("[%CONTEXT_ID%]", contextId);
 		
+	    System.out.println("sending first message");
 	    channel.write(helloRequest);
 		
 		Thread.sleep(Integer.MAX_VALUE);

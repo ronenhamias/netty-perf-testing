@@ -40,8 +40,10 @@ public class ClientHandler extends SimpleChannelUpstreamHandler {
 			Netty3ClientRunner.latch.setValue(contextId);
 		}
 		else if(message.contains("pt.openapi.hello/sayHelloResponse")){
-			Netty3ClientRunner.send(ctx.getChannel());
-			Netty3ClientRunner.send(ctx.getChannel());
+			int fac = Integer.parseInt(Netty3ClientRunner.FACTOR);
+			for(int i=0; i< fac; i++)
+				Netty3ClientRunner.send(ctx.getChannel());
+			
 		}
 			
 	}
