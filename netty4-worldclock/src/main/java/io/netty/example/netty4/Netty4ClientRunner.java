@@ -16,9 +16,6 @@
 package io.netty.example.netty4;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.example.netty4.writter.BetterWrite;
 
 public final class Netty4ClientRunner {
 
@@ -29,17 +26,11 @@ public final class Netty4ClientRunner {
 		ClientFactory client = new ClientFactory();
 		Channel channel = client.connect(HOST, PORT);
 
-		BetterWrite write = new BetterWrite(channel);
 		while (true) {
-			for (int j = 0; j < 100; j++) {
-				write.write(channel,"hello world\n",new ChannelFutureListener() {
-					@Override
-					public void operationComplete(ChannelFuture future) throws Exception {
-						
-						
-					}
-				});
+			for (int j = 0; j < 9 ; j++) {
+				channel.write("{\"qualifier\":\"pt.openapi.hello/sayHello\",\"contextId\":\"6174C9AFB778E2970236\",\"data\":{\"name\":\"ronen\"}}\n");
 			}
+			channel.flush();
 			Thread.sleep(1);
 		}
 	}

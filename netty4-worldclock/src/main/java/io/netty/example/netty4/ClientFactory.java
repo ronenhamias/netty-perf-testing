@@ -9,7 +9,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * @author Anton Kharenko
@@ -20,7 +22,10 @@ public class ClientFactory {
 		EventLoopGroup group = new NioEventLoopGroup();
 
 		Bootstrap bootstrap = new Bootstrap();
-		bootstrap.group(group)
+		ExecutorService boss = new ForkJoinPool();
+		NioEventLoopGroup bossGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors()+1,boss);
+        
+		 bootstrap.group( bossGroup)
 				.channel(NioSocketChannel.class)
 				.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
 				.option(ChannelOption.TCP_NODELAY, true)
