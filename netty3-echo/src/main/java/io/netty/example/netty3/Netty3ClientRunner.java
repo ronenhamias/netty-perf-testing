@@ -8,6 +8,7 @@ public class Netty3ClientRunner {
 
 	private static String HOST = "127.0.0.1";
 	private static final int PORT = 4800;
+	public static  String POOLSIZE = "10";
 
 	static String createContextRequest = "{\"qualifier\":\"pt.openapi.context/createContextRequest\"}";
 
@@ -23,8 +24,10 @@ public class Netty3ClientRunner {
 		
 		if(args[0]!=null)
 			HOST = args[0];
-		if(args[0]!=null)
+		if(args[1]!=null)
 			FACTOR  = args[1];
+		if(args[2]!=null)
+			POOLSIZE  = args[2];
 		
 		System.out.println("connecting to: " + HOST);
 		
@@ -46,6 +49,7 @@ public class Netty3ClientRunner {
 	}
 	public static void send(Channel channel) {
 		channel.write(helloRequest);
+		
 	}
 	
 }

@@ -7,6 +7,7 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.omg.CORBA.Environment;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteOrder;
@@ -23,8 +24,8 @@ public class ServerFactory {
 
 	private ServerBootstrap initBootstrap() {
 		ServerBootstrap serverBootstrap;
-		Executor bossExecutor = Executors.newCachedThreadPool();
-		Executor workerExecutor = Executors.newCachedThreadPool();
+		Executor bossExecutor = Executors.newFixedThreadPool(8);
+		Executor workerExecutor = Executors.newFixedThreadPool(8);
 		ChannelFactory channelFactory = new NioServerSocketChannelFactory(bossExecutor, workerExecutor);
 		serverBootstrap = new ServerBootstrap(channelFactory);
 		initOptions(serverBootstrap);
@@ -38,10 +39,7 @@ public class ServerFactory {
 		bootstrap.setOption("child.keepAlive", true);
 		bootstrap.setOption("child.reuseAddress", true);
 		bootstrap.setOption("child.connectTimeoutMillis", 100);
-		bootstrap.setOption("child.readWriteFair", true);
-		bootstrap.setOption("child.sendBufferSize", 1048576);
-		bootstrap.setOption("child.receiveBufferSize", 1048576);
-		bootstrap.setOption("child.writeBufferHighWaterMark", 1048576);
+
 	}
 
 	private void initAcceptor(ServerBootstrap bootstrap, DefaultChannelGroup channelGroup, int port) {
