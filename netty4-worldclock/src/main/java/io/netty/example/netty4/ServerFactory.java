@@ -45,11 +45,8 @@ public class ServerFactory {
 
 		bootstrap.group( bossGroup,workerGroup)
 				.channel(channelClass)
-				.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-				.childOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(20))
 				.childOption(ChannelOption.TCP_NODELAY, true)
 				.childOption(ChannelOption.SO_REUSEADDR, true)
-				.childOption(ChannelOption.MESSAGE_SIZE_ESTIMATOR, new DefaultMessageSizeEstimator(100))
 				.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 32 * 1024)
 				.childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 8 * 1024)
 				.childHandler(new ServerInitializer());

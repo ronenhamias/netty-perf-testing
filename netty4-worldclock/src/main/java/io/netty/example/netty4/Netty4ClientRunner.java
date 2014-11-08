@@ -25,7 +25,7 @@ public final class Netty4ClientRunner {
 	public static void main(String[] args) throws Exception {
 		ClientFactory client = new ClientFactory();
 		Channel channel = client.connect(HOST, PORT);
-
+		
 		while (true) {
 			for (int j = 0; j < 9 ; j++) {
 				channel.write("{\"qualifier\":\"pt.openapi.hello/sayHello\",\"contextId\":\"6174C9AFB778E2970236\",\"data\":{\"name\":\"ronen\"}}\n");

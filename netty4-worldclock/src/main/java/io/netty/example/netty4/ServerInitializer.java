@@ -26,6 +26,7 @@ public class ServerInitializer extends ChannelInitializer<SocketChannel> {
 
     @Override
     public void initChannel(SocketChannel ch) {
+    	
         ChannelPipeline pipeline = ch.pipeline();
         pipeline.addLast("framer", new LineBasedFrameDecoder(1000, true, true));
         pipeline.addLast("decoder", new StringDecoder());
