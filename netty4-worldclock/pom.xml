@@ -7,7 +7,12 @@
 	<version>1.0-SNAPSHOT</version>
 	<name>netty4-worldclock</name>
 	<url>http://maven.apache.org</url>
+	<properties>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
+	</properties>
 	<build>
+
 		<extensions>
 			<extension>
 				<groupId>kr.motd.maven</groupId>
@@ -15,22 +20,35 @@
 				<version>1.2.3.Final</version>
 			</extension>
 		</extensions>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>io.netty.example.netty4.Netty4ClientRunner</mainClass>
+						</manifest>
+					</archive>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
+		</plugins>
+
+
 	</build>
 	<dependencies>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
-			<version>4.0.23.Final</version>
+			<version>4.1.0.Beta3</version>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-transport-native-epoll</artifactId>
-			<version>4.0.23.Final</version>
-		</dependency>
-		<dependency>
-			<groupId>netty-test</groupId>
-			<artifactId>netty-test-common</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>4.1.0.Beta3</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -39,4 +57,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
 </project>

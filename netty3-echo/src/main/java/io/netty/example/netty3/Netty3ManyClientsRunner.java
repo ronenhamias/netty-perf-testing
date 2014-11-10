@@ -59,8 +59,8 @@ public class Netty3ManyClientsRunner {
 
 				String contextId = createContextLatch.getValue(10, TimeUnit.SECONDS);
 				if (contextId == null) {
-					System.out.println("session not created! exiting test.");
-					return;
+					System.out.println("session not created! try again test.");
+					break;
 				}
 
 				System.out.println("session created: " + contextId);
