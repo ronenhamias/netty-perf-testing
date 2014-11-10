@@ -57,7 +57,7 @@ public class Netty3ManyClientsRunner {
 
 				channel.write("{\"qualifier\":\"pt.openapi.context/createContextRequest\"}");
 
-				String contextId = createContextLatch.getValue(1, TimeUnit.SECONDS);
+				String contextId = createContextLatch.getValue(10, TimeUnit.SECONDS);
 				if (contextId == null) {
 					System.out.println("session not created! exiting test.");
 					return;
