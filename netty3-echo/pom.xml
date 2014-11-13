@@ -34,7 +34,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>io.netty.example.netty3.Netty3ClientRunner</mainClass>
+							<mainClass>io.netty.example.netty3.Netty3ManyClientsRunner</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
