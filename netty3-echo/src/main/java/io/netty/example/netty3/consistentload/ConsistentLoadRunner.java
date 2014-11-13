@@ -1,4 +1,6 @@
-package io.netty.example.netty3;
+package io.netty.example.netty3.consistentload;
+
+import io.netty.example.netty3.ValueLatch;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
@@ -12,7 +14,7 @@ import org.jboss.netty.handler.codec.frame.LengthFieldPrepender;
 import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
 
-public class Netty3ManyClientsRunner {
+public class ConsistentLoadRunner {
 
 	static String HOST;
 	static int FACTOR;
@@ -23,13 +25,11 @@ public class Netty3ManyClientsRunner {
 	static String helloRequestTemplate = "{\"qualifier\":\"pt.openapi.hello/sayHello\",\"contextId\":\"[%CONTEXT_ID%]\",\"data\":{\"name\":\"ronen\"}}";
 
 	public static void main(String[] args) throws InterruptedException {
-
-		HOST = args[0];
-		FACTOR = Integer.parseInt(args[1]);
-		CONN_NUM = Integer.parseInt(args[2]);
-		CONN_RAMPS = Integer.parseInt(args[3]);
-        RAMP_PAUSE = Integer.parseInt(args[4]);
-
+		if(args.length >0)
+			HOST = args[0];
+		else{
+			HOST = "localhost";
+		}
 		ClientBootstrap clientBootstrap = new ClientBootstrap(
 				new NioClientSocketChannelFactory(
 						Executors.newCachedThreadPool(),
@@ -43,39 +43,16 @@ public class Netty3ManyClientsRunner {
 				pipeline.addLast("decoder", new StringDecoder());
 				pipeline.addLast("framer", new LengthFieldBasedFrameDecoder(1024 * 2, 0, 4));
 				pipeline.addLast("encoder", new StringEncoder());
-				pipeline.addLast("handler", new ManyClientHandler());
+				pipeline.addLast("handler", new ConsistentLoadHandler());
 				return pipeline;
 			}
 		});
 
-		for (int r = 0; r < CONN_RAMPS; r++) {
-			for (int i = 0; i < CONN_NUM; i++) {
-				ChannelFuture future = clientBootstrap.connect(new InetSocketAddress(HOST, 4800));
-				Channel channel = future.await().getChannel();
-				ValueLatch<String> createContextLatch = new ValueLatch<>();
-				channel.setAttachment(createContextLatch);
-
-				channel.write("{\"qualifier\":\"pt.openapi.context/createContextRequest\"}");
-
-				String contextId = createContextLatch.getValue(10, TimeUnit.SECONDS);
-				if (contextId == null) {
-					System.out.println("session not created! try again test.");
-					break;
-				}
-
-				System.out.println("session created: " + contextId);
-				String helloRequest = helloRequestTemplate.replace("[%CONTEXT_ID%]", contextId);
-				channel.setAttachment(helloRequest);
-
-				
-				for (int x = 0; x < Integer.MAX_VALUE; x++) {
-					channel.write(helloRequest);
-				}
-				
-			}
-            TimeUnit.MILLISECONDS.sleep(RAMP_PAUSE);
-		}
-
+		UserSenario senario = new UserSenario(clientBootstrap,HOST, 4800);
+		String contextId = senario.setUp(10);
+		
+		senario.start();
+		
 		Thread.currentThread().join();
 	}
 }
