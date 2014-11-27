@@ -38,7 +38,7 @@ public class UserSenario implements Runnable{
 		for (int x = 0; x < Integer.MAX_VALUE; x++) {
 			channel.write(helloRequest);
 			try {
-				TimeUnit.MICROSECONDS.sleep(100);
+				TimeUnit.MILLISECONDS.sleep(1);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
