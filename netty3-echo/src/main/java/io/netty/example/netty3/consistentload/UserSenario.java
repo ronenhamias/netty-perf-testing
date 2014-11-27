@@ -32,18 +32,18 @@ public class UserSenario implements Runnable{
 	}
 
 	ExecutorService executor =  Executors.newSingleThreadExecutor();
+	
 	@Override
 	public void run() {
 		for (int x = 0; x < Integer.MAX_VALUE; x++) {
 			channel.write(helloRequest);
 			try {
-				TimeUnit.MICROSECONDS.sleep(1);
+				TimeUnit.MICROSECONDS.sleep(100);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		
 	}
 
 	public String setUp(int timeout) throws InterruptedException {
