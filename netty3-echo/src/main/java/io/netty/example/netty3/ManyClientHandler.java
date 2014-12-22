@@ -5,7 +5,7 @@ import org.jboss.netty.channel.*;
 public class ManyClientHandler extends SimpleChannelUpstreamHandler {
 
 	//	static final String helloRequestTemplate = "{\"qualifier\":\"pt.openapi.hello/sayHello\",\"contextId\":\"[%CONTEXT_ID%]\",\"data\":{\"name\":\"ronen\"}}";
-	static final String helloRequestTemplate = "{\"qualifier\":\"pt.openapi.hello/echo\",\"contextId\":\"[%CONTEXT_ID%]\",\"data\":{\"name\":\"ronen\"}}";
+	static final String helloRequestTemplate = "{\"qualifier\":\"pt.openapi.hello/echo16K\",\"contextId\":\"[%CONTEXT_ID%]\",\"data\":{\"name\":\"ronen\"}}";
 	static final String heartbeatRequest = "{\"qualifier\":\"pt.openapi.context/heartbeatRequest\"}";
 
 	String helloRequest;
@@ -40,13 +40,16 @@ public class ManyClientHandler extends SimpleChannelUpstreamHandler {
 			channel.write(helloRequest = helloRequestTemplate.replace("[%CONTEXT_ID%]", contextId));
 		}
 		//		else if (message.contains("pt.openapi.hello/sayHelloResponse")) {
-		else if (message.contains("pt.openapi.hello/echo")) {
+		else if (message.contains("pt.openapi.hello/echo16K")) {
 			for (int i = 0; i < Netty3ManyClientsRunner.factor; i++) {
 				channel.write(helloRequest);
 			}
 		}
 		else if (message.contains("heartbeatNotification")) {
 			channel.write(heartbeatRequest);
+		}
+		else {
+			System.err.println("### Can't recognize received message:\n" + message);
 		}
 	}
 
