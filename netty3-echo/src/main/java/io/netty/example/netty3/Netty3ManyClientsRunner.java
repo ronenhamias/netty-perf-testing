@@ -1,8 +1,13 @@
 package io.netty.example.netty3;
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import joptsimple.BuiltinHelpFormatter;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.*;
@@ -14,26 +19,48 @@ import org.jboss.netty.handler.codec.string.StringEncoder;
 
 public class Netty3ManyClientsRunner {
 
-	static String HOST;
-	static int FACTOR;
-	static int CONN_NUM;
-	static int CONN_RAMPS;
-	static int RAMP_PAUSE;
+	static final String ADDRESS = "address";
+	static final String FACTOR = "factor";
+	static final String CONN_NUM = "connNum";
+	static final String RAMP_PAUSE = "rampPause";
 
-	static String helloRequestTemplate = "{\"qualifier\":\"pt.openapi.hello/sayHello\",\"contextId\":\"[%CONTEXT_ID%]\",\"data\":{\"name\":\"ronen\"}}";
+	static int factor;
+	static int connNum;
+	static int rampPause;
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws Exception {
+		OptionParser parser = new OptionParser();
+		parser.allowsUnrecognizedOptions();
+		parser.formatHelpWith(new BuiltinHelpFormatter(1024, 8));
+		parser.accepts(ADDRESS, "host:port").withRequiredArg().required();
+		parser.accepts(FACTOR, "how many replies per request").withRequiredArg().required().ofType(Integer.class);
+		parser.accepts(CONN_NUM, "total number of connections").withRequiredArg().required().ofType(Integer.class);
+		parser.accepts(RAMP_PAUSE, "delay(ms) between connect attepmts").withRequiredArg().required().ofType(Integer.class);
+		parser.acceptsAll(Arrays.asList("?"), "show help").forHelp();
 
-		HOST = args[0];
-		FACTOR = Integer.parseInt(args[1]);
-		CONN_NUM = Integer.parseInt(args[2]);
-		CONN_RAMPS = Integer.parseInt(args[3]);
-        RAMP_PAUSE = Integer.parseInt(args[4]);
+		OptionSet opts = null;
+		try {
+			opts = parser.parse(args);
+		} catch (Exception e) {
+			System.out.println("\n" + e.getMessage() + "\n");
+			parser.printHelpOn(System.out);
+			System.exit(1);
+		}
+		if (opts.has("?")) {
+			parser.printHelpOn(System.out);
+			System.exit(1);
+		}
+
+		String address = (String) opts.valueOf(ADDRESS);
+		String host = address.split(":")[0];
+		int port = Integer.parseInt(address.split(":")[1]);
+
+		factor = (int) opts.valueOf(FACTOR);
+		connNum = (int) opts.valueOf(CONN_NUM);
+		rampPause = (int) opts.valueOf(RAMP_PAUSE);
 
 		ClientBootstrap clientBootstrap = new ClientBootstrap(
-				new NioClientSocketChannelFactory(
-						Executors.newCachedThreadPool(),
-						Executors.newCachedThreadPool()));
+				new NioClientSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool()));
 
 		clientBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			@Override
@@ -41,39 +68,27 @@ public class Netty3ManyClientsRunner {
 				ChannelPipeline pipeline = Channels.pipeline();
 				pipeline.addLast("prepender", new LengthFieldPrepender(4));
 				pipeline.addLast("decoder", new StringDecoder());
-				pipeline.addLast("framer", new LengthFieldBasedFrameDecoder(1024 * 2, 0, 4));
+				pipeline.addLast("framer", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
 				pipeline.addLast("encoder", new StringEncoder());
 				pipeline.addLast("handler", new ManyClientHandler());
 				return pipeline;
 			}
 		});
 
-		for (int r = 0; r < CONN_RAMPS; r++) {
-			for (int i = 0; i < CONN_NUM; i++) {
-				ChannelFuture future = clientBootstrap.connect(new InetSocketAddress(HOST, 4800));
-				Channel channel = future.await().getChannel();
-				ValueLatch<String> createContextLatch = new ValueLatch<>();
-				channel.setAttachment(createContextLatch);
+		for (int i = 0; i < connNum; i++) {
+			ChannelFuture future = clientBootstrap.connect(new InetSocketAddress(host, port));
+			Channel channel = future.await().getChannel();
+			ValueLatch<String> createContextLatch = new ValueLatch<>();
+			channel.setAttachment(createContextLatch);
 
-				channel.write("{\"qualifier\":\"pt.openapi.context/createContextRequest\"}");
-
-				String contextId = createContextLatch.getValue(10, TimeUnit.SECONDS);
-				if (contextId == null) {
-					System.out.println("session not created! try again test.");
-					break;
-				}
-
-				System.out.println("session created: " + contextId);
-				String helloRequest = helloRequestTemplate.replace("[%CONTEXT_ID%]", contextId);
-				channel.setAttachment(helloRequest);
-
-				
-				for (int x = 0; x < Integer.MAX_VALUE; x++) {
-					channel.write(helloRequest);
-				}
-				
+			channel.write("{\"qualifier\":\"pt.openapi.context/createContextRequest\"}");
+			String contextId = createContextLatch.getValue(10, TimeUnit.SECONDS);
+			if (contextId == null) {
+				System.out.println("!!! session not created, exiting test.");
+				System.exit(1);
 			}
-            TimeUnit.MILLISECONDS.sleep(RAMP_PAUSE);
+			System.out.println("### session created: " + contextId);
+			TimeUnit.MILLISECONDS.sleep(rampPause);
 		}
 
 		Thread.currentThread().join();

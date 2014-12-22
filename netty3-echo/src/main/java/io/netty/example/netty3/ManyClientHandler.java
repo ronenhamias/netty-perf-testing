@@ -4,28 +4,28 @@ import org.jboss.netty.channel.*;
 
 public class ManyClientHandler extends SimpleChannelUpstreamHandler {
 
-	@Override
-	public void channelBound(ChannelHandlerContext ctx, ChannelStateEvent e) {
-	}
+	//	static final String helloRequestTemplate = "{\"qualifier\":\"pt.openapi.hello/sayHello\",\"contextId\":\"[%CONTEXT_ID%]\",\"data\":{\"name\":\"ronen\"}}";
+	static final String helloRequestTemplate = "{\"qualifier\":\"pt.openapi.hello/echo\",\"contextId\":\"[%CONTEXT_ID%]\",\"data\":{\"name\":\"ronen\"}}";
+	static final String heartbeatRequest = "{\"qualifier\":\"pt.openapi.context/heartbeatRequest\"}";
 
-	@Override
-	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) {
-	}
+	String helloRequest;
 
 	@Override
 	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) {
+		setContextLatchNull(ctx);
+		System.out.println("ManyClientHandler.channelClosed= " + e);
 	}
 
 	@Override
 	public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) {
-	}
-
-	@Override
-	public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) {
+		setContextLatchNull(ctx);
+		System.out.println("ManyClientHandler.channelDisconnected= " + e);
 	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
+		setContextLatchNull(ctx);
+		System.out.println("ManyClientHandler.exceptionCaught=" + e.getCause());
 	}
 
 	@Override
@@ -35,14 +35,26 @@ public class ManyClientHandler extends SimpleChannelUpstreamHandler {
 		message = message.substring(4);
 		if (message.contains("pt.openapi.context/createContextResponse")) {
 			String contextId = message.subSequence(77, 97).toString();
-			ValueLatch<String> createContextLatch = (ValueLatch<String>) channel.getAttachment();
+			ValueLatch createContextLatch = (ValueLatch) channel.getAttachment();
 			createContextLatch.setValue(contextId);
+			channel.write(helloRequest = helloRequestTemplate.replace("[%CONTEXT_ID%]", contextId));
 		}
-		else if (message.contains("pt.openapi.hello/sayHelloResponse")) {
-			String helloRequest = (String) channel.getAttachment();
-			for (int i = 0; i < Netty3ManyClientsRunner.FACTOR; i++) {
+		//		else if (message.contains("pt.openapi.hello/sayHelloResponse")) {
+		else if (message.contains("pt.openapi.hello/echo")) {
+			for (int i = 0; i < Netty3ManyClientsRunner.factor; i++) {
 				channel.write(helloRequest);
 			}
+		}
+		else if (message.contains("heartbeatNotification")) {
+			channel.write(heartbeatRequest);
+		}
+	}
+
+	private void setContextLatchNull(ChannelHandlerContext ctx) {
+		Channel channel = ctx.getChannel();
+		ValueLatch createContextLatch = (ValueLatch) channel.getAttachment();
+		if (createContextLatch != null) {
+			createContextLatch.setValue(null);
 		}
 	}
 }
