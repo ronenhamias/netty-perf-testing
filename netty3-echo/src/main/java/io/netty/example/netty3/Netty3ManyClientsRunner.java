@@ -16,6 +16,7 @@ import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
 import org.jboss.netty.handler.codec.frame.LengthFieldPrepender;
 import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
+import org.jboss.netty.util.CharsetUtil;
 
 public class Netty3ManyClientsRunner {
 
@@ -62,14 +63,17 @@ public class Netty3ManyClientsRunner {
 		ClientBootstrap clientBootstrap = new ClientBootstrap(
 				new NioClientSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool()));
 
+		clientBootstrap.setOption("receiveBufferSize", 1024 * 32);
+		clientBootstrap.setOption("sendBufferSize", 1024 * 32);
+
 		clientBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			@Override
 			public ChannelPipeline getPipeline() throws Exception {
 				ChannelPipeline pipeline = Channels.pipeline();
-				pipeline.addLast("prepender", new LengthFieldPrepender(4));
-				pipeline.addLast("decoder", new StringDecoder());
 				pipeline.addLast("framer", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
-				pipeline.addLast("encoder", new StringEncoder());
+				pipeline.addLast("decoder", new StringDecoder(CharsetUtil.UTF_8));
+				pipeline.addLast("prepender", new LengthFieldPrepender(4));
+				pipeline.addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
 				pipeline.addLast("handler", new ManyClientHandler());
 				return pipeline;
 			}

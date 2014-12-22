@@ -32,7 +32,6 @@ public class ManyClientHandler extends SimpleChannelUpstreamHandler {
 	public void messageReceived(final ChannelHandlerContext ctx, MessageEvent e) {
 		Channel channel = ctx.getChannel();
 		String message = (String) e.getMessage();
-		message = message.substring(4);
 		if (message.contains("pt.openapi.context/createContextResponse")) {
 			String contextId = message.subSequence(77, 97).toString();
 			ValueLatch createContextLatch = (ValueLatch) channel.getAttachment();
