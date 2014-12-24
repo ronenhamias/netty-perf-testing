@@ -5,7 +5,8 @@ import org.jboss.netty.channel.*;
 public class ManyClientHandler extends SimpleChannelUpstreamHandler {
 
 	//	static final String helloRequestTemplate = "{\"qualifier\":\"pt.openapi.hello/sayHello\",\"contextId\":\"[%CONTEXT_ID%]\",\"data\":{\"name\":\"ronen\"}}";
-	static final String helloRequestTemplate = "{\"qualifier\":\"pt.openapi.hello/echo16K\",\"contextId\":\"[%CONTEXT_ID%]\",\"data\":{\"name\":\"ronen\"}}";
+	//	static final String hello16KTemplate = "{\"qualifier\":\"pt.openapi.hello/echo16K\",\"contextId\":\"[%CONTEXT_ID%]\",\"data\":{\"name\":\"ronen\"}}";
+	static final String hello8KTemplate = "{\"qualifier\":\"pt.openapi.hello/echo8K\",\"contextId\":\"[%CONTEXT_ID%]\",\"data\":{\"name\":\"ronen\"}}";
 	static final String heartbeatRequest = "{\"qualifier\":\"pt.openapi.context/heartbeatRequest\"}";
 
 	String helloRequest;
@@ -36,10 +37,12 @@ public class ManyClientHandler extends SimpleChannelUpstreamHandler {
 			String contextId = message.subSequence(77, 97).toString();
 			ValueLatch createContextLatch = (ValueLatch) channel.getAttachment();
 			createContextLatch.setValue(contextId);
-			channel.write(helloRequest = helloRequestTemplate.replace("[%CONTEXT_ID%]", contextId));
+			//			channel.write(helloRequest = hello16KTemplate.replace("[%CONTEXT_ID%]", contextId));
+			channel.write(helloRequest = hello8KTemplate.replace("[%CONTEXT_ID%]", contextId));
 		}
 		//		else if (message.contains("pt.openapi.hello/sayHelloResponse")) {
-		else if (message.contains("pt.openapi.hello/echo16K")) {
+		//		else if (message.contains("pt.openapi.hello/echo16K")) {
+		else if (message.contains("pt.openapi.hello/echo8K")) {
 			for (int i = 0; i < Netty3ManyClientsRunner.factor; i++) {
 				channel.write(helloRequest);
 			}
